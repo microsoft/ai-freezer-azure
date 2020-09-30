@@ -1,0 +1,254 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageName": {
+            "type": "string",
+            "metadata": {
+                "description": "description"
+            },
+            "minLength": 3,
+            "maxLength": 24
+        },
+        "iotHubName": {
+            "type": "string",
+            "metadata": {
+                "description": "description"
+            },
+            "minLength": 3
+        },
+        "anomalyDetectionName": {
+            "defaultValue": "tester-anomaly-detector",
+            "type": "string",
+            "metadata": {
+                "description": "description"
+            }
+        },
+        "logicAppName": {
+            "type": "string",
+            "metadata": {
+                "description": "description"
+            }
+        },
+        "budgetName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for the budget to make your project doesn't run up a bill"
+            }
+        },
+        "startDate": {
+            "type": "string",
+            "metadata": {
+                "description": "The start date must be first of the month in YYYY-MM-DD format. Future start date should not be more than three months. Past start date should be selected within the timegrain preiod."
+            }
+        },
+        "endDate": {
+            "type": "string",
+            "metadata": {
+                "description": "The end date for the budget in YYYY-MM-DD format. If not provided, we default this to 10 years from the start date."
+            }
+        }
+    },
+    "functions": [],
+    "variables": {
+        "storageAccountName": "[parameters('storageName')]",
+        "hostingPlanName": "testHostPlan",
+        "functionAppName": "dataProccessors"
+    },
+    "resources": [{
+        "name": "[variables('storageAccountName')]",
+        "type": "Microsoft.Storage/storageAccounts",
+        "apiVersion": "2019-06-01",
+        "tags": {
+            "displayName": "storageaccount1"
+        },
+        "location": "[resourceGroup().location]",
+        "kind": "StorageV2",
+        "sku": {
+            "name": "Standard_LRS",
+            "tier": "Standard"
+        }
+    },
+    {
+        "type": "Microsoft.Devices/IotHubs",
+        "apiVersion": "2020-03-01",
+        "name": "[parameters('iotHubName')]",
+        "location": "[resourceGroup().location]",
+        "properties":{
+            "eventHubEndpoints": {
+                "events": {
+                    "retentionTimeInDays":1,
+                    "partitionCount": 2
+                }
+            }
+        },
+        "sku": {
+            "name": "s1",
+            "capacity": 1
+        }
+    },
+    {
+        "type": "Microsoft.CognitiveServices/accounts",
+        "apiVersion": "2017-04-18",
+        "name": "[parameters('anomalyDetectionName')]",
+        "location": "westus2",
+        "sku": {
+            "name": "s0"
+        },
+        "kind": "AnomalyDetector",
+        "properties": {
+            "customSubDomainName": "[parameters('anomalyDetectionName')]",
+            "privateEndpointConnections": [],
+            "publicNetworkAccess": "Enabled"
+        }
+    },
+    {
+        "name": "[parameters('logicAppName')]",
+        "type": "Microsoft.Logic/workflows",
+        "apiVersion": "2017-07-01",
+        "location": "[resourceGroup().location]",
+        "properties": {
+            "definition": {
+                "$schema": "https://schema.management.azure.com/schemas/2016-06-01/Microsoft.Logic.json",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                    "$connections": {
+                        "defaultValue": {},
+                        "type": "Object"
+                    }
+                },
+                "triggers": {
+                    "manual": {
+                        "type": "Request",
+                        "kind": "Http",
+                        "inputs": {
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "actions": {
+                },
+                "outputs": {
+                }
+            },
+            "parameters": {
+            }
+        }
+    },
+    {
+        "type": "Microsoft.Web/serverfarms",
+        "apiVersion": "2020-06-01",
+        "name": "[variables('hostingPlanName')]",
+        "location": "[resourceGroup().location]",
+        "sku": {
+            "name": "Y1",
+            "tier": "Dynamic"
+        },
+        "properties": {
+            "name": "[variables('hostingPlanName')]",
+            "computeMode": "Dynamic"
+        }
+    },
+    {
+        "type": "Microsoft.Web/sites",
+        "apiVersion": "2020-06-01",
+        "name": "[variables('functionAppName')]",
+        "location": "[resourceGroup().location]",
+        "kind": "functionapp",
+        "dependsOn": [
+            "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+            "[resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName'))]",
+            "[resourceId('Microsoft.CognitiveServices/accounts', parameters('anomalyDetectionName'))]"
+        ],
+        "properties": {
+            "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+            "siteConfig": {
+            "appSettings": [
+                {
+                "name": "AzureWebJobsStorage",
+                "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';EndpointSuffix=', environment().suffixes.storage, ';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value)]"
+                },
+                {
+                    "name": "ANOMALY_DETECTOR_ENDPOINT",
+                    "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('anomalyDetectionName'))).endpoint]"
+                },
+                {
+                    "name": "ai-freezer-hub_events_IOTHUB",
+                    "value": "[concat('Endpoint=', reference(resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName'))).eventHubEndpoints.events.endpoint, ';SharedAccessKeyName=', listKeys(resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName')), '2020-03-01').value[0].keyName, ';SharedAccessKey=', listKeys(resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName')), '2020-03-01').value[0].primaryKey, 'EntityPath=', reference(resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName'))).eventHubEndpoints.events.path)]"
+                },
+                {
+                    "name": "ANOMALY_DETECTOR_KEY",
+                    "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('anomalyDetectionName')), '2017-04-18').Key1]"
+                },
+                {
+                    "name": "EMAIL_ALERT_URL",
+                    "value": "[listCallbackUrl(concat(resourceId('Microsoft.Logic/workflows', parameters('logicAppName')), '/triggers/manual'), '2017-07-01').value]"
+                },
+                {
+                "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';EndpointSuffix=', environment().suffixes.storage, ';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value)]"
+                },
+                {
+                "name": "WEBSITE_CONTENTSHARE",
+                "value": "[toLower(variables('functionAppName'))]"
+                },
+                {
+                "name": "FUNCTIONS_EXTENSION_VERSION",
+                "value": "~2"
+                },
+                {
+                "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                "value": "~10"
+                },
+                // {
+                // "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                // "value": "[reference(resourceId('microsoft.insights/components', variables('applicationInsightsName')), '2020-02-02-preview').InstrumentationKey]"
+                // },
+                {
+                "name": "FUNCTIONS_WORKER_RUNTIME",
+                "value": "dotnet"
+                }
+            ]
+            }
+        }
+    },
+    {
+        "type": "Microsoft.Consumption/budgets",
+        "name": "[parameters('budgetName')]",
+        "apiVersion": "2019-10-01",
+        "properties":{
+            "timePeriod": {
+                "startDate": "[parameters('startDate')]",
+                "endDate": "[parameters('endDate')]"
+            },
+            "timeGrain": "monthly",
+            "amount": 5,
+            "category": "Cost",
+        }
+    }],
+    "outputs": {
+        "storageEndpoint": {
+            "type": "object",
+            "value": "[reference(parameters('storageName')).primaryEndpoints]"
+        },
+        "connString": {
+            "type": "object",
+            "value": "[reference(parameters('iotHubName')).eventHubEndpoints]"
+        },
+        "iothubkeys": {
+            "type": "object",
+            "value": "[listKeys(resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName')), '2020-03-01')]"
+        },
+        "emailUrl": {
+            "type": "object",
+            "value":  "[reference(resourceId('Microsoft.Logic/workflows', parameters('logicAppName')))]"
+        },
+        "emailUrlKey": {
+            "type": "string",
+            "value": "[listCallbackUrl(concat(resourceId('Microsoft.Logic/workflows', parameters('logicAppName')), '/triggers/manual'), '2017-07-01').value]"
+        }
+    }
+}

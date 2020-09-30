@@ -1,0 +1,18 @@
+{
+    "bindings": [
+      {
+        "name": "myTimer",
+        "type": "timerTrigger",
+        "direction": "in",
+        "schedule": "0 */5 * * * *"
+      },
+      {
+        "name": "inputTable",
+        "direction": "in",
+        "type": "table",
+        "tableName": "tempTable",
+        "take": 50,
+        "connection": "temperaturedatastor_STORAGE"
+      }
+    ]
+  }

@@ -1,0 +1,19 @@
+{
+    "bindings": [
+      {
+        "type": "eventHubTrigger",
+        "name": "myIoTHubMessage",
+        "direction": "in",
+        "eventHubName": "samples-workitems",
+        "connection": "ai-freezer-hub_events_IOTHUB",
+        "consumerGroup": "$Default"
+      },
+      {
+        "name": "outputTable",
+        "direction": "out",
+        "type": "table",
+        "tableName": "tempTable",
+        "connection": "temperaturedatastor_STORAGE"
+      }
+    ]
+  }
