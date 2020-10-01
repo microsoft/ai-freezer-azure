@@ -4,7 +4,7 @@ The Azure Powered AI Freezer Monitor is a maker hardware based IoT monitor that 
 
 The project is designed to be functional for low temperature scientific freezers (-60 C), with the goal of reducing  catastrophic failure and the need to keep backup freezers running full-time. However, please note that this project is primarily for demonstrative and educational purposes and has not gone through extensive testing. 
 
->This project takes about two to three hours to fully complete. Please note that the device will need to passively collect temperature data for about 30 days before you will be able to train the model.
+>This project takes about one hour to fully complete.
 
 ## Prerequisites
 
