@@ -177,7 +177,7 @@
                 },
                 {
                     "name": "ai-freezer-hub_events_IOTHUB",
-                    "value": "[concat('Endpoint=', reference(resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName'))).eventHubEndpoints.events.endpoint, ';SharedAccessKeyName=', listKeys(resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName')), '2020-03-01').value[0].keyName, ';SharedAccessKey=', listKeys(resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName')), '2020-03-01').value[0].primaryKey, 'EntityPath=', reference(resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName'))).eventHubEndpoints.events.path)]"
+                    "value": "[concat('Endpoint=', reference(resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName'))).eventHubEndpoints.events.endpoint, ';SharedAccessKeyName=', listKeys(resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName')), '2020-03-01').value[0].keyName, ';SharedAccessKey=', listKeys(resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName')), '2020-03-01').value[0].primaryKey, ';EntityPath=', reference(resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName'))).eventHubEndpoints.events.path)]"
                 },
                 {
                     "name": "ANOMALY_DETECTOR_KEY",
@@ -197,7 +197,7 @@
                 },
                 {
                 "name": "FUNCTIONS_EXTENSION_VERSION",
-                "value": "~2"
+                "value": "~3"
                 },
                 {
                 "name": "WEBSITE_NODE_DEFAULT_VERSION",
@@ -214,6 +214,21 @@
             ]
             }
         }
+        // "resources": [
+        //     {
+        //         "type": "sourcecontrols",
+        //         "name": "web",
+        //         "apiVersion": "2018-11-01",
+        //         "dependsOn": [
+        //             "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
+        //         ],
+        //         "properties": {
+        //             "repoUrl": "https://github.com/microsoft/ai-freezer-azure.git",
+        //             "branch": "main",
+        //             "isManualIntegration": true
+        //         }
+        //     }
+        // ]
     },
     {
         "type": "Microsoft.Consumption/budgets",
@@ -226,7 +241,7 @@
             },
             "timeGrain": "monthly",
             "amount": 5,
-            "category": "Cost",
+            "category": "Cost"
         }
     }],
     "outputs": {

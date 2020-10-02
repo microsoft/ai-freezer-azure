@@ -13,7 +13,7 @@
         "direction": "out",
         "type": "table",
         "tableName": "tempTable",
-        "connection": "temperaturedatastor_STORAGE"
+        "connection": "AzureWebJobsStorage"
       }
     ]
   }

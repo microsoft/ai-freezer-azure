@@ -30,15 +30,18 @@ The project is designed to be functional for low temperature scientific freezers
 
 ![Picture of all the materials used in the project](/media/allmaterials.jpg)
 
-## Up and running in 5 minutes
+## Project Setup
 
 There are details below about the cost and architecture of this sample, but if you just want to get it running right away here are the steps to get started. 
 
 ### Azure Setup
 
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)]()
+
 #### Deploy Resources
 1. Log in to your Azure account
-1. Click the **Deploy to Azure** button below to provision all the resources for this project
+1. Click the **Deploy to Azure** button above to provision all the resources for this project
+    > As an alternative you can deploy the template by using the *Deploy Custom Template* service in the Azure portal, and selecting *Build your own template in the editor* and uploading the *azuredeploy.json* file from this repo.
 1. Create a new resource group for the project
 1. Select a region for the your resources, choose one that near you for the best performance
     > *Note: Some resources aren't available in all regions.*
@@ -65,8 +68,6 @@ There are details below about the cost and architecture of this sample, but if y
 1. Select the device you created
 1. Copy the *Primary Connection String* you'll use this string in the next section
     ![IoT hub device keys and strings](./media/connection_string.png)
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)]()
 
 ### <a name="device-build"></a> Device Build
 
@@ -148,7 +149,7 @@ Resources are what tools and services on Azure are called. You'll use a variety 
 
 ## <a name="message-spec"></a> Message Specification
 
-The message sent from your device should be a JSON formatted string and needs to include a device id as a string and the temperature reading as a float.
+The message sent from your device should be a JSON formatted string and needs to include a device id as a string and the temperature reading as a float. You should send exactly 1 data point per minute.
 
 ```json
 {"deviceId":"ESP32_device", "temperature": 25.235}
