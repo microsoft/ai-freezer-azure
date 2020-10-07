@@ -147,9 +147,9 @@ void loop()
         if (messageSending && 
             (int)(millis() - send_interval_ms) >= INTERVAL && second() <= 50)
         {
-            // Send teperature data
+            // Send temperature data
             char messagePayload[MESSAGE_MAX_LEN];
-            // Read tempereature sensor
+            // Read temperature sensor
             float temperature =  tmp.temperature();
 
             // Upload data to database

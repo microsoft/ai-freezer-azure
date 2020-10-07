@@ -5,7 +5,7 @@
         "storageName": {
             "type": "string",
             "metadata": {
-                "description": "description"
+                "description": "Name for the storage account to keep your data"
             },
             "minLength": 3,
             "maxLength": 24
@@ -13,21 +13,49 @@
         "iotHubName": {
             "type": "string",
             "metadata": {
-                "description": "description"
+                "description": "Name for the IoT Hub that recieves data from your devices"
             },
             "minLength": 3
         },
+        "iotHubSub": {
+            "type": "string",
+            "defaultValue": "F1",
+            "metadata": {
+                "description": "Choose subscription for your IoT Hub. Free: F1, Standard: S1, Basic: B1"
+            },
+            "allowedValues": [
+                "F1", 
+                "S1",
+                "B1"
+            ]
+        },
         "anomalyDetectionName": {
-            "defaultValue": "tester-anomaly-detector",
             "type": "string",
             "metadata": {
-                "description": "description"
+                "description": "Name for the anomaly detection cognative serivce"
+            }
+        },
+        "anomalyDetectionSub": {
+            "type": "string",
+            "defaultValue": "F0",
+            "metadata": {
+                "description": "Choose a subscriotion for you Anomaly Detection Cognative Service. Free: F0, Standard: S0"
+            },
+            "allowedValues": [
+                "F0",
+                "S0"
+            ]
+        },
+        "functionAppName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for the Fucntion App"
             }
         },
         "logicAppName": {
             "type": "string",
             "metadata": {
-                "description": "description"
+                "description": "Name for the Logic App that sends warnings if an anomaly is detected"
             }
         },
         "budgetName": {
@@ -52,8 +80,8 @@
     "functions": [],
     "variables": {
         "storageAccountName": "[parameters('storageName')]",
-        "hostingPlanName": "testHostPlan",
-        "functionAppName": "dataProccessors"
+        "hostingPlanName": "[concat(parameters('functionAppName'), '-hostplan')]",
+        "functionAppName": "[parameters('functionAppName')]"
     },
     "resources": [{
         "name": "[variables('storageAccountName')]",
@@ -83,7 +111,7 @@
             }
         },
         "sku": {
-            "name": "s1",
+            "name": "[parameters('iotHubSub')]",
             "capacity": 1
         }
     },
@@ -93,7 +121,7 @@
         "name": "[parameters('anomalyDetectionName')]",
         "location": "westus2",
         "sku": {
-            "name": "s0"
+            "name": "[parameters('anomalyDetectionSub')]"
         },
         "kind": "AnomalyDetector",
         "properties": {
@@ -203,10 +231,6 @@
                 "name": "WEBSITE_NODE_DEFAULT_VERSION",
                 "value": "~10"
                 },
-                // {
-                // "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                // "value": "[reference(resourceId('microsoft.insights/components', variables('applicationInsightsName')), '2020-02-02-preview').InstrumentationKey]"
-                // },
                 {
                 "name": "FUNCTIONS_WORKER_RUNTIME",
                 "value": "dotnet"
