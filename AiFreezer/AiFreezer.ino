@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 #include <WiFi.h>
 #include "Esp32MQTTClient.h"
 #include <TimeLib.h>
@@ -169,6 +172,8 @@ void loop()
 }
 
 /*-------- NTP code ----------*/
+// The code below is presumably licensed under LGPL and has been copied from:
+// https://github.com/PaulStoffregen/Time/tree/master/examples/TimeNTP_ESP8266WiFi
 
 const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
 byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets

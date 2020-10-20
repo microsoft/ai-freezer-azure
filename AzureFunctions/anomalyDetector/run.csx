@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 #r "Microsoft.WindowsAzure.Storage"
 #r "Newtonsoft.Json"
 #r "System.Text.Json"
