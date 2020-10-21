@@ -131,7 +131,7 @@ While an Azure account is free, using resources will incur a cost. Some of the r
 
 ### Azure Budgets
 
-It's a good idea to also set up a budget for resource group (don't worry if you don't know what all these terms mean yet, we'll explain everything as we go). We've included a budget set at $5/mo as part of the Azure template, but if you want to learn more about costs on Azure, [here](https://docs.microsoft.com/en-us/azure/cost-management-billing/costs/quick-acm-cost-analysis) is a good starting place.
+It's a good idea to also set up a budget for resource group (don't worry if you don't know what all these terms mean yet, we'll explain everything as we go). An Azure budget will send you email warning you that you've reached the amount specified. It won't turn off your services, so you will still have to log in and turn off any service you no longer want to be charged for. We've included a budget set at $5/mo as part of the Azure template, but if you want to learn more about costs on Azure, [here](https://docs.microsoft.com/en-us/azure/cost-management-billing/costs/quick-acm-cost-analysis) is a good starting place.
 
 ## Azure Resources
 
@@ -144,7 +144,6 @@ Resources are what tools and services on Azure are called. You'll use a variety 
 | [Azure Table Storage](https://azure.microsoft.com/en-us/services/storage/tables/) | NoSQL key-value store |
 | [Anomaly detection cognitive service](https://azure.microsoft.com/en-us/services/cognitive-services/anomaly-detector/) | An AI service that helps you foresee problems before they occur |
 | [Logic Apps](https://azure.microsoft.com/en-us/services/logic-apps/) | No code platform for integration solutions |
-| **Total** || **~$2** |
 
 
 ## <a name="message-spec"></a> Message Specification

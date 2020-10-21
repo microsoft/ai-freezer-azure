@@ -20,7 +20,7 @@ static bool hasWifi = false;
 static bool messageSending = true;
 static uint64_t send_interval_ms;
 
-// Time vars
+// Time variables
 static const char ntpServerName[] = "us.pool.ntp.org";
 const int timeZone = -7;  // Pacific Daylight Time (USA)
 
@@ -31,82 +31,12 @@ time_t getNtpTime();
 void digitalClockDisplay();
 void printDigits(int digits);
 void sendNTPpacket(IPAddress &address);
-// end time vars
+// end time variables
 
 temp_sensor tmp;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Utilities
-static void InitWifi()
-{
-    Serial.println("Connecting...");
-    WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-    hasWifi = true;
-    Serial.println("WiFi connected");
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());
-}
-
-static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result)
-{
-    if (result == IOTHUB_CLIENT_CONFIRMATION_OK)
-    {
-      Serial.println("Send Confirmation Callback finished.");
-    }
-}
-
-static void MessageCallback(const char* payLoad, int size)
-{
-    Serial.println("Message callback:");
-    Serial.println(payLoad);
-}
-
-static void DeviceTwinCallback(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned char *payLoad, int size)
-{
-    char *temp = (char *)malloc(size + 1);
-    if (temp == NULL)
-    {
-      return;
-    }
-    memcpy(temp, payLoad, size);
-    temp[size] = '\0';
-    // Display Twin message.
-    Serial.println(temp);
-    free(temp);
-}
-
-static int  DeviceMethodCallback(const char *methodName, const unsigned char *payload, int size, unsigned char **response, int *response_size)
-{
-    LogInfo("Try to invoke method %s", methodName);
-    const char *responseMessage = "\"Successfully invoke device method\"";
-    int result = 200;
-
-    if (strcmp(methodName, "start") == 0)
-    {
-      LogInfo("Start sending temperature and humidity data");
-      messageSending = true;
-    }
-    else if (strcmp(methodName, "stop") == 0)
-    {
-      LogInfo("Stop sending temperature and humidity data");
-      messageSending = false;
-    }
-    else
-    {
-      LogInfo("No method %s found", methodName);
-      responseMessage = "\"No method found\"";
-      result = 404;
-    }
-
-    *response_size = strlen(responseMessage) + 1;
-    *response = (unsigned char *)strdup(responseMessage);
-
-    return result;
-}
+static void InitWifi();
 
 void setup()
 {
@@ -124,16 +54,11 @@ void setup()
     }
 
     Serial.println(" > IoT Hub");
-    Esp32MQTTClient_SetOption(OPTION_MINI_SOLUTION_NAME, "GetStarted");
+
     Esp32MQTTClient_Init((const uint8_t*)connectionString, true);
 
-    Esp32MQTTClient_SetSendConfirmationCallback(SendConfirmationCallback);
-    Esp32MQTTClient_SetMessageCallback(MessageCallback);
-    Esp32MQTTClient_SetDeviceTwinCallback(DeviceTwinCallback);
-    Esp32MQTTClient_SetDeviceMethodCallback(DeviceMethodCallback);
-
     Udp.begin(localPort);
-    Serial.println("waiting for sync");
+    Serial.println("waiting for NTP time sync");
     setSyncProvider(getNtpTime);
     setSyncInterval(300);
     
@@ -150,15 +75,19 @@ void loop()
         if (messageSending && 
             (int)(millis() - send_interval_ms) >= INTERVAL && second() <= 50)
         {
-            // Send temperature data
+            // Create a variable to hold the message payload
             char messagePayload[MESSAGE_MAX_LEN];
             // Read temperature sensor
             float temperature =  tmp.temperature();
 
-            // Upload data to database
+            // Build message string to send to IoT Hub
             snprintf(messagePayload, MESSAGE_MAX_LEN, messageData, DEVICE_ID, messageCount++, temperature);
             Serial.println(messagePayload);
+
+            // Create event from string
             EVENT_INSTANCE* message = Esp32MQTTClient_Event_Generate(messagePayload, MESSAGE);
+
+            // Send telemetry to IoT Hub
             Esp32MQTTClient_SendEventInstance(message);
             
             send_interval_ms = millis();
@@ -230,4 +159,16 @@ void sendNTPpacket(IPAddress &address)
     Udp.beginPacket(address, 123); //NTP requests are to port 123
     Udp.write(packetBuffer, NTP_PACKET_SIZE);
     Udp.endPacket();
+}
+
+static void InitWifi()
+{
+    Serial.println("Connecting to WiFi...");
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+    hasWifi = true;
+    Serial.println("WiFi connected");
 }
