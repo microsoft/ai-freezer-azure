@@ -8,7 +8,6 @@
 #include "temp_sensor.h"
 #include "config.h"
 
-// #define INTERVAL 300000
 #define INTERVAL 60000
 #define DEVICE_ID "Esp32Device"
 #define MESSAGE_MAX_LEN 256
