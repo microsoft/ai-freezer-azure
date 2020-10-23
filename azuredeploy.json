@@ -238,21 +238,6 @@
             ]
             }
         }
-        // "resources": [
-        //     {
-        //         "type": "sourcecontrols",
-        //         "name": "web",
-        //         "apiVersion": "2018-11-01",
-        //         "dependsOn": [
-        //             "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
-        //         ],
-        //         "properties": {
-        //             "repoUrl": "https://github.com/microsoft/ai-freezer-azure.git",
-        //             "branch": "main",
-        //             "isManualIntegration": true
-        //         }
-        //     }
-        // ]
     },
     {
         "type": "Microsoft.Consumption/budgets",
@@ -267,27 +252,5 @@
             "amount": 5,
             "category": "Cost"
         }
-    }],
-    "outputs": {
-        "storageEndpoint": {
-            "type": "object",
-            "value": "[reference(parameters('storageName')).primaryEndpoints]"
-        },
-        "connString": {
-            "type": "object",
-            "value": "[reference(parameters('iotHubName')).eventHubEndpoints]"
-        },
-        "iothubkeys": {
-            "type": "object",
-            "value": "[listKeys(resourceId('Microsoft.Devices/IotHubs', parameters('iotHubName')), '2020-03-01')]"
-        },
-        "emailUrl": {
-            "type": "object",
-            "value":  "[reference(resourceId('Microsoft.Logic/workflows', parameters('logicAppName')))]"
-        },
-        "emailUrlKey": {
-            "type": "string",
-            "value": "[listCallbackUrl(concat(resourceId('Microsoft.Logic/workflows', parameters('logicAppName')), '/triggers/manual'), '2017-07-01').value]"
-        }
-    }
+    }]
 }

@@ -8,8 +8,8 @@ The project is designed to be functional for low temperature scientific freezers
 
 ## Prerequisites
 
-1. Free Azure Account
-1. VS Code with the Arduino extension installed
+1. An active Azure account. If you don't have one, you can sign up for a [free account](https://azure.microsoft.com/free/).
+1. [VS Code](https://code.visualstudio.com/Download) with the [Arduino extension](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.vscode-arduino) installed
 1. Hardware specified below (if you'd like to use a different device refer to the [message specifications](#message-spec))
 
 ### Materials and Tools
@@ -46,6 +46,41 @@ There are details below about the cost and architecture of this sample, but if y
 1. Select a region for the your resources, choose one that near you for the best performance
     > *Note: Some resources aren't available in all regions.*
 1. Provide names for all the resources
+
+#### Setup Azure Functions
+
+1. Once your deployment is complete use the left navigation to open you new functions app
+1. Select *Functions* from the left navigation
+1. Select *Add* in the top left
+1. Select the following options in the window:
+
+   **Development environment:** Develop in portal
+
+   **Template:** Timer trigger
+
+   **New Function:** dataSaver
+
+    >you can leave any other settings as they are
+    
+    ![Add new function setup menu](./media/datasaver.png)
+1. Once the function is created select *Code + Test* from the left navigation.
+1. In *run.csx*, replace all the existing code with the code from [here](./AzureFunctions/dataSaver/run.csx)
+1. Navigate to *function.json* and replace all the existing code there with the code form [here](./AzureFunctions/dataSaver/function.json)
+
+    ![Changing files in portal editor](./media/datasavercode.png)
+1. Repeat these steps for the anomaly detector function using the options below:
+
+    **Development environment:** Develop in portal
+
+   **Template:** IoT Hub (Event Hub)
+
+   **New Function:** anomalyDetector
+
+    >you can leave any other settings as they are
+
+    [run.csx code](./AzureFunctions/anomalyDetector/run.csx)
+
+    [function.json code](./AzureFunctions/anomalyDetector/run.csx)
 
 #### Configure Logic App
 1. Once the deployment is complete use the left navigation to open the newly created Logic App
