@@ -6,7 +6,12 @@
 #include <TimeLib.h>
 
 #include "temp_sensor.h"
+
+#if __has_include("config.h")
 #include "config.h"
+#else
+#error Your configuration file missing. Go to aka.ms/azurefreezerconfig for instructions on how to add this file.
+#endif
 
 #define INTERVAL 60000
 #define DEVICE_ID "Esp32Device"

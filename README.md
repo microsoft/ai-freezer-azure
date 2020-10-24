@@ -36,7 +36,7 @@ There are details below about the cost and architecture of this sample, but if y
 
 ### Azure Setup
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)]()
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmicrosoft%2Fai-freezer-azure%2Fmain%2Fazuredeploy.json)
 
 #### Deploy Resources
 1. Log in to your Azure account
